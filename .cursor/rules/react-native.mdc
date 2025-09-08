@@ -1,0 +1,18 @@
+---
+description: React Native rules for Chat AI mobile application
+globs: *.tsx
+alwaysApply: false
+---
+
+### Guidelines for React Native
+
+- Use functional components with hooks instead of class components for better performance and modern React Native patterns
+- Implement React.memo() selectively for list items and complex components that render frequently to optimize mobile performance
+- Utilize React.lazy() and Suspense for screen-level code-splitting to reduce initial bundle size and improve app startup time
+- Use useCallback for gesture handlers, navigation callbacks, and onPress functions to prevent unnecessary re-renders in mobile interfaces
+- Prefer useMemo for expensive data transformations and filtering operations that could impact scroll performance
+- Implement Platform.select() and Platform.OS for platform-specific code instead of conditional rendering for iOS/Android differences
+- Use React Navigation's native stack navigator and optimize screen transitions with gestureEnabled and animation configurations
+- Leverage Expo APIs and react-native-reanimated for smooth animations and native-feeling user interactions
+- Implement proper error boundaries with react-native-exception-handler to gracefully handle crashes and provide fallback UI
+- Use FlatList and SectionList with proper keyExtractor, getItemLayout, and removeClippedSubviews for optimal list performance on mobile devices

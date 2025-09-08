@@ -1,0 +1,103 @@
+---
+description: Shared rules for Chat AI mobile application
+globs: *.tsx,*.ts,*.js,*.jsx
+alwaysApply: false
+---
+
+# AI Rules for Chat AI App
+
+Aplikacja mobilna do konwersacyjnej współpracy z modelem LLM, łącząca czat tekstowy, obsługę załączników (obrazy i dokumenty), oraz wejście głosowe w prostym przepływie z zachowaniem lokalnej prywatności i bez serwerowego backendu. Produkt jest budowany w React Native (Expo) z Expo Router oraz Vercel AI SDK, z naciskiem na szybkie wyświetlanie odpowiedzi (quasi‑streaming na RN), prostą nawigację w zakładkach i lokalną persystencję podstawowych danych.
+
+## Tech Stack
+
+### Framework mobilny
+
+- **Expo SDK 52+** - szybkie tworzenie aplikacji mobilnych bez konfiguracji natywnych narzędzi
+- **React Native 0.76** - natywna wydajność przy jednej bazie kodu dla iOS i Android
+- **TypeScript 5** - statyczne typowanie i lepsze wsparcie IDE
+- **Expo Router** - file-based routing znany z Next.js
+
+### UI i Stylowanie
+
+- **NativeWind 4** - Tailwind CSS w React Native
+- **Tailwind CSS 3.4** - utility-first approach do CSS
+- **Lucide React Native** - spójna biblioteka ikon SVG
+- **Expo Image** - wydajne ładowanie i cache'owanie obrazów
+
+### AI i Chat
+
+- **Vercel AI SDK 4** - hook `useChat` z wbudowaną obsługą streamingu
+- **@ai-sdk/openai** - bezpośrednia integracja z GPT-4o-mini
+- **GPT-4o-mini** - model chat+vision dla tekstu i obrazów/PDF
+
+### Zarządzanie stanem
+
+- **Zustand 5** - minimalistyczne zarządzanie stanem
+- **Zustand persist middleware** - automatyczna synchronizacja z AsyncStorage
+
+### Obsługa plików
+
+- **Expo Document Picker** - dostęp do plików PDF, MD, TXT
+- **Expo Image Picker** - wybór zdjęć z galerii i aparatu
+- **Expo Image Manipulator** - skalowanie, kompresja, usuwanie EXIF
+
+### Persystencja danych
+
+- **AsyncStorage** - dane profilu użytkownika
+- **Expo SecureStore** - wrażliwe dane (stan logowania)
+
+## Project Structure
+
+When introducing changes to the project, always follow the directory structure below:
+
+- `./app` - main application code (Expo Router file-based routing)
+- `./app/(tabs)` - tab-based navigation screens
+- `./app/(tabs)/index.tsx` - Chat screen (main tab)
+- `./app/(tabs)/explore.tsx` - Profile screen
+- `./app/_layout.tsx` - root layout component
+- `./components` - reusable React Native components
+- `./components/ui` - UI components and shared elements
+- `./hooks` - custom React hooks
+- `./constants` - app constants (Colors, config)
+- `./assets` - static assets (images, fonts)
+- `./scripts` - build and utility scripts
+
+When modifying the directory structure, always update this section.
+
+## Coding practices
+
+### Guidelines for clean code
+
+- Use feedback from linters to improve the code when making changes.
+- Prioritize error handling and edge cases, especially for:
+  - Network connectivity issues
+  - File upload/processing failures
+  - STT/audio recording failures
+  - OpenAI API errors and rate limiting
+- Handle errors and edge cases at the beginning of functions.
+- Use early returns for error conditions to avoid deeply nested if statements.
+- Place the happy path last in the function for improved readability.
+- Avoid unnecessary else statements; use if-return pattern instead.
+- Use guard clauses to handle preconditions and invalid states early.
+- Implement proper error logging and user-friendly error messages with toasts.
+- Consider using custom error types or error factories for consistent error handling.
+
+### Mobile-specific practices
+
+- Always handle permission requests gracefully with clear user messaging.
+- Implement proper loading states for async operations (file processing, API calls).
+- Use haptic feedback for important user interactions (recording start/stop).
+- Ensure responsive design works across different screen sizes and orientations.
+- Optimize image processing to prevent memory issues on mobile devices.
+- Handle app state changes (background/foreground) appropriately.
+- Implement proper keyboard handling for text input areas.
+
+### React Native best practices
+
+- Use TypeScript interfaces for all props and state objects.
+- Leverage React Native's built-in accessibility features with proper labels.
+- Use FlatList for large datasets to maintain performance.
+- Implement proper error boundaries to prevent app crashes.
+- Use React.memo and useMemo/useCallback for performance optimization where needed.
+- Handle async operations with proper cleanup to prevent memory leaks.
+- Use platform-specific code only when necessary (Platform.OS checks).

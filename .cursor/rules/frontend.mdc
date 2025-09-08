@@ -1,0 +1,295 @@
+---
+description: Frontend rules for React Native/Expo Chat AI application
+globs: *.tsx,*.ts,*.js,*.jsx
+alwaysApply: false
+---
+
+# Frontend Rules - Chat AI React Native/Expo Application
+
+## Tech Stack Overview
+
+- **Expo SDK 52+** with React Native 0.76
+- **TypeScript 5** for type safety
+- **Expo Router** for file-based navigation
+- **NativeWind 4** for Tailwind CSS styling
+- **Vercel AI SDK 4** for chat functionality
+- **Zustand 5** for state management
+- **AsyncStorage & SecureStore** for persistence
+
+## Project Structure Guidelines
+
+### File Organization
+
+- Use Expo Router file-based routing in `app/` directory
+- Place reusable components in `components/`
+- Store hooks in `hooks/`
+- Keep constants and utilities in `constants/`
+- Follow the established directory structure from project rules
+
+### Component Architecture
+
+- Use React Native components (.tsx) for all interactive elements
+- Prefer functional components with hooks over class components
+- Implement proper TypeScript typing for all components
+- Use proper imports from `react-native` for core components (View, Text, ScrollView, etc.)
+
+## Styling Guidelines
+
+### NativeWind & Tailwind CSS
+
+- Use NativeWind's `styled` function to create styled components:
+
+  ```tsx
+  import {styled} from "nativewind";
+  import {View, Text} from "react-native";
+
+  const StyledView = styled(View);
+  const StyledText = styled(Text);
+
+  // Use className prop for Tailwind classes
+  <StyledView className='flex-1 items-center justify-center'>
+    <StyledText className='text-slate-800 text-lg font-medium'>
+      Welcome to Chat AI
+    </StyledText>
+  </StyledView>;
+  ```
+
+- Leverage Tailwind utility classes for consistent design:
+  - Layout: `flex-1`, `items-center`, `justify-center`, `p-4`, `m-2`
+  - Colors: `bg-slate-900`, `text-white`, `border-gray-300`
+  - Typography: `text-lg`, `font-medium`, `font-bold`
+  - Spacing: `gap-4`, `space-y-2`, `px-4`, `py-2`
+
+### React Native StyleSheet (when needed)
+
+- Use StyleSheet.create() for complex styles or platform-specific styling:
+
+  ```tsx
+  import {StyleSheet} from "react-native";
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: "#25292e",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    text: {
+      color: "#fff",
+      fontSize: 16,
+    },
+  });
+  ```
+
+### Responsive Design
+
+- Use Tailwind responsive variants: `sm:`, `md:`, `lg:`
+- Implement proper flex layouts for different screen sizes
+- Consider safe area handling with `useSafeAreaInsets()` hook
+
+## Performance Optimization
+
+### Component Optimization
+
+- Wrap expensive functions in `useCallback()`:
+
+  ```tsx
+  const renderItem = useCallback(
+    ({item}) => (
+      <View key={item.key}>
+        <Text>{item.title}</Text>
+      </View>
+    ),
+    []
+  );
+  ```
+
+- Use `useMemo()` for expensive calculations
+- Implement proper key props for list items
+- Avoid inline functions in render methods
+
+### FlatList Optimization
+
+- Always provide `keyExtractor` prop
+- Use `getItemLayout` for uniform item heights
+- Implement `removeClippedSubviews` for long lists
+- Consider `windowSize` and `initialNumToRender` props
+
+### State Management
+
+- Use Zustand for global state with proper TypeScript interfaces
+- Implement proper state slicing to avoid unnecessary re-renders
+- Use AsyncStorage persistence middleware for user preferences
+- Keep chat history in memory only (as per PRD requirements)
+
+## Navigation & Routing
+
+### Expo Router Best Practices
+
+- Use file-based routing in `app/` directory
+- Implement proper tab navigation with `_layout.tsx`
+- Handle navigation state properly between screens
+- Use `useRouter()` hook for programmatic navigation
+
+### Tab Navigation Structure
+
+```tsx
+// app/(tabs)/_layout.tsx
+import {Tabs} from "expo-router";
+
+export default function TabLayout() {
+  return (
+    <Tabs screenOptions={{headerShown: false}}>
+      <Tabs.Screen name='index' options={{title: "Chat"}} />
+      <Tabs.Screen name='profile' options={{title: "Profile"}} />
+    </Tabs>
+  );
+}
+```
+
+## Chat Functionality Guidelines
+
+### Message Rendering
+
+- Implement proper message bubbles with user/AI distinction
+- Use FlatList for message history with proper optimization
+- Handle message states (sending, sent, error)
+- Implement typing indicators and loading states
+
+### Input Handling
+
+- Validate message length (max 5000 characters as per PRD)
+- Show character count with visual feedback
+- Handle multiline input properly
+- Implement proper keyboard handling with `KeyboardAvoidingView`
+
+### Attachment Handling
+
+- Support image, PDF, and text file attachments
+- Implement file size validation (10MB per file, 30MB total)
+- Show attachment previews before sending
+- Handle attachment removal from the input
+
+## Error Handling & User Feedback
+
+### Toast Notifications
+
+- Use consistent toast styling across the app
+- Implement different toast types (error, success, info)
+- Position toasts appropriately (top of screen)
+- Include actionable buttons when relevant ("Retry" for network errors)
+
+### Loading States
+
+- Show loading indicators for async operations
+- Implement skeleton screens for better UX
+- Use proper loading text ("model pisze..." for AI responses)
+- Handle timeout scenarios gracefully
+
+### Error States
+
+- Provide clear, user-friendly error messages in Polish
+- Implement retry mechanisms for recoverable errors
+- Handle network connectivity issues
+- Show appropriate fallbacks for failed operations
+
+## Accessibility Guidelines
+
+### React Native Accessibility
+
+- Use `accessibilityLabel` for all interactive elements
+- Implement `accessibilityHint` for complex interactions
+- Use `accessibilityRole` to define element purposes
+- Ensure proper focus management for screen readers
+
+### Visual Accessibility
+
+- Maintain sufficient color contrast (WCAG AA compliance)
+- Use semantic colors for different states
+- Implement proper text sizing and spacing
+- Support system font size preferences
+
+### Interactive Elements
+
+- Ensure minimum touch target size (44x44 points)
+- Provide haptic feedback for important actions
+- Use `accessibilityState` for toggleable elements
+- Implement proper keyboard navigation
+
+## File Management & Media
+
+### Image Handling
+
+- Use Expo Image for optimized image loading and caching
+- Implement proper image compression and resizing
+- Remove EXIF data from images before processing
+- Handle image picker permissions properly
+
+### File Processing
+
+- Validate file types using MIME type checking
+- Implement proper error handling for unsupported files
+- Show progress indicators for file uploads
+- Handle file processing in background threads
+
+## Security & Privacy
+
+### Data Handling
+
+- Store sensitive data in SecureStore only
+- Use AsyncStorage for non-sensitive user preferences
+- Implement proper data validation and sanitization
+- Avoid logging sensitive information in development
+
+### API Integration
+
+- Handle API keys securely (environment variables)
+- Implement proper request/response validation
+- Use HTTPS for all network requests
+- Handle rate limiting and API errors gracefully
+
+## Development Best Practices
+
+### Code Quality
+
+- Use strict TypeScript configuration
+- Implement proper error boundaries
+- Follow consistent naming conventions
+- Use ESLint and Prettier for code formatting
+
+### Testing Considerations
+
+- Write unit tests for utility functions
+- Test component rendering and interactions
+- Mock external dependencies properly
+- Test error scenarios and edge cases
+
+### Performance Monitoring
+
+- Test performance in release builds only
+- Monitor JavaScript thread performance
+- Use React DevTools Profiler for optimization
+- Implement proper memory management
+
+## Platform-Specific Considerations
+
+### iOS Specific
+
+- Handle safe area insets properly
+- Implement proper status bar styling
+- Use iOS-specific haptic feedback patterns
+- Handle iOS permission requests
+
+### Android Specific
+
+- Implement proper back button handling
+- Use Android-specific UI patterns where appropriate
+- Handle Android permission system
+- Consider navigation bar styling
+
+### Cross-Platform
+
+- Test on both iOS and Android devices
+- Use Platform.OS checks sparingly
+- Prefer platform-agnostic solutions
+- Handle platform differences gracefully

@@ -2,19 +2,21 @@
 
 ## 1. Przegląd produktu
 
-Aplikacja mobilna do konwersacyjnej współpracy z modelem LLM, łącząca czat tekstowy, obsługę załączników (obrazy i dokumenty), oraz wejście głosowe (opcjonalnie) w prostym przepływie z zachowaniem lokalnej prywatności i bez serwerowego backendu. Produkt jest budowany w React Native (Expo) z Expo Router oraz Vercel AI SDK, z naciskiem na szybkie wyświetlanie odpowiedzi (quasi‑streaming na RN), prostą nawigację w zakładkach i lokalną persystencję podstawowych danych (profil, stan zalogowania, historia sesji).
+Aplikacja mobilna do konwersacyjnej współpracy z modelem LLM, łącząca czat tekstowy, obsługę załączników (obrazy i dokumenty), oraz wejście głosowe (opcjonalnie) w prostym przepływie z zachowaniem lokalnej prywatności i bez serwerowego backendu. Produkt jest budowany w Expo SDK 52+ z React Native 0.76, TypeScript 5, Expo Router oraz Vercel AI SDK 4, z naciskiem na szybkie wyświetlanie odpowiedzi (natywny streaming), prostą nawigację w zakładkach i lokalną persystencję podstawowych danych (profil, stan zalogowania, historia sesji).
 
-- Platformy: iOS 16+ oraz Android 10+
+- Platformy: iOS 16+ oraz Android 10+ (Expo managed workflow)
+- Framework: Expo SDK 52+, React Native 0.76, TypeScript 5
+- UI/Styling: NativeWind 4 + Tailwind CSS 3.4, Lucide React Native icons
 - Język interfejsu: polski; model konwersuje po polsku
-- Model czatu i vision: GPT‑4o‑mini (Vercel AI SDK)
-- STT (opcjonalnie, jeśli nie zwiększa złożoności MVP): ElevenLabs streaming STT z partials i autointerpunkcją; fallback do transkrypcji asynchronicznej
-- Stan i persystencja: Zustand (chat, profile, attachments), AsyncStorage (profil), SecureStore (stan zalogowania), pamięć sesji (historia czatu)
-- Załączniki: md, txt, jpeg, png, pdf (walidacja typów, limitów i pre‑podgląd)
-- Nawigacja: Expo Router w układzie zakładek (Chat, Profile)
-- Dystrybucja: TestFlight (iOS) i Google Internal Testing (Android)
+- Model czatu i vision: GPT‑4o‑mini (@ai-sdk/openai, Vercel AI SDK 4)
+- STT: Expo Speech (lokalne STT bez external API costs)
+- Stan i persystencja: Zustand 5 z persist middleware, AsyncStorage (profil), SecureStore (stan zalogowania), pamięć sesji (historia czatu)
+- Załączniki: md, txt, jpeg, png, pdf (Expo Document/Image Picker, Image Manipulator)
+- Nawigacja: Expo Router (file-based routing)
+- Build i dystrybucja: EAS Build/Submit do TestFlight (iOS) i Google Internal Testing (Android)
 - Budżet operacyjny: 15 USD/miesiąc (lokalny licznik kosztów)
 
-Zakres MVP obejmuje: mock‑logowanie z utrwaleniem przez SecureStore, ekran czatu z quasi‑streamingiem odpowiedzi i obsługą załączników, podstawową ścieżkę PDF i obrazów (ekstrakcja tekstu i vision), edycję profilu z lokalną persystencją oraz prostą nawigację między ekranami.
+Zakres MVP obejmuje: mock‑logowanie z utrwaleniem przez SecureStore, ekran czatu z natywnym streamingiem odpowiedzi (Vercel AI SDK) i obsługą załączników, podstawową ścieżkę PDF i obrazów (ekstrakcja tekstu i vision), edycję profilu z lokalną persystencją oraz prostą nawigację między ekranami.
 
 ## 2. Problem użytkownika
 
@@ -29,29 +31,29 @@ Zakres MVP obejmuje: mock‑logowanie z utrwaleniem przez SecureStore, ekran cza
 
 - Wysyłanie wiadomości tekstowych do 5000 znaków; licznik znaków i blokada wysyłki po przekroczeniu limitu.
 - Historia rozmowy przechowywana w pamięci sesji, utrzymana pomiędzy zakładkami, resetowana po ubiciu aplikacji lub wylogowaniu.
-- Odbiór odpowiedzi z quasi‑streamingiem na RN: okresowe porcjowanie treści co 50–100 ms lub płynna aktualizacja bloku odpowiedzi; wskaźnik stanu „model pisze…”.
+- Natywny streaming odpowiedzi przez Vercel AI SDK 4: płynne wyświetlanie treści token-by-token; wskaźnik stanu „model pisze…" z wbudowaną obsługą błędów.
 - Kontrola generowania: przycisk Stop (przerywa generowanie) i Wyślij ponownie (ponawia ostatnie zapytanie wraz z kontekstem).
 - Kopiowanie: możliwość zaznaczenia i skopiowania tekstu odpowiedzi.
 - Zarządzanie kontekstem: soft‑limit tokenów, lokalne obcinanie/sumaryzacja wątku w celu utrzymania spójności i kosztów.
-- Obsługa błędów: toasty u góry z kategorią i przyciskiem „Ponów” dla 429/5xx/timeout; backoff i sensowne timeouts; czytelne komunikaty dla innych błędów.
+- Obsługa błędów: wbudowana w useChat hook z toastami u góry z kategorią i przyciskiem „Ponów" dla 429/5xx/timeout; backoff i sensowne timeouts; czytelne komunikaty dla innych błędów.
 
   3.2 Załączniki i walidacja
 
-- Obsługiwane typy: md, txt, jpeg, png, pdf; whitelist MIME skonfigurowana i egzekwowana.
+- Obsługiwane typy: md, txt, jpeg, png, pdf; whitelist MIME skonfigurowana i egzekwowana przez Expo Document/Image Picker.
 - Limity: do 10 MB na plik, maks. 5 plików w jednym zapytaniu, łączny limit 30 MB; przekroczenia wyświetlają czytelne toasty z przyczyną.
-- Wybór plików: expo‑image‑picker (obrazy) i expo‑document‑picker (pdf/md/txt); miniatury/preview w UI przed wysyłką; możliwość usunięcia pojedynczego załącznika przed wysyłką.
-- Przekazanie do modelu: experimental_attachments w useChat Vercel AI SDK.
+- Wybór plików: Expo Image Picker (obrazy z galerii/aparatu) i Expo Document Picker (pdf/md/txt); miniatury/preview w UI przed wysyłką; możliwość usunięcia pojedynczego załącznika przed wysyłką.
+- Przekazanie do modelu: experimental_attachments w useChat hook (@ai-sdk/openai, Vercel AI SDK 4).
 
   3.3 Przetwarzanie obrazów i PDF
 
-- Obrazy: skalowanie do maks. ~1600 px po dłuższym boku, kompresja ok. 0.8, usuwanie EXIF; przekazanie do modelu z kontekstem vision.
-- PDF: ekstrakcja tekstu do limitu 50 stron lub 50 tys. znaków; dla skanów fallback do Tesseract OCR; czytelne komunikaty, gdy plik jest poza limitami.
+- Obrazy: skalowanie do maks. ~1600 px po dłuższym boku, kompresja ok. 0.8, usuwanie EXIF przez Expo Image Manipulator; przekazanie do modelu z kontekstem vision.
+- PDF: ekstrakcja tekstu do limitu 50 stron lub 50 tys. znaków przez standardowe biblioteki; czytelne komunikaty, gdy plik jest poza limitami.
 
   3.4 Wejście głosowe (opcjonalne w MVP, jeśli nie zwiększa nadmiernie złożoności)
 
-- Nagrywanie z expo‑av: M4A/AAC, mono, 16 kHz; przyciski Start/Stop; auto‑stop po 60 s; obsługa przerwań systemowych.
-- Streaming STT: ElevenLabs z partials i autointerpunkcją; pierwsze partials w ~800–1000 ms.
-- Fallback: asynchroniczna transkrypcja z wynikiem dla 10 s audio w ~5–7 s.
+- Lokalne STT przez Expo Speech: brak kosztów external API, uproszczona implementacja bez streaming solutions.
+- Przyciski Start/Stop nagrywania; auto‑stop po 60 s; obsługa przerwań systemowych.
+- Automatyczny fallback do text input w przypadku braku uprawnień do mikrofonu.
 - Normalizacja liczb; wynik trafia do pola czatu z możliwością edycji przed wysyłką.
 
   3.5 Profil i sesja
@@ -62,8 +64,10 @@ Zakres MVP obejmuje: mock‑logowanie z utrwaleniem przez SecureStore, ekran cza
 
   3.6 Nawigacja i UX
 
-- Expo Router w układzie zakładek: Chat i Profile; szybkie przełączanie bez utraty stanu sesji.
-- Spójne zachowanie przycisku wstecz, linków i nawigacji zgodne z file‑based routing.
+- Expo Router w układzie zakładek (file-based routing): Chat i Profile; szybkie przełączanie bez utraty stanu sesji.
+- Stylowanie przez NativeWind 4 + Tailwind CSS 3.4: utility-first approach, spójny design system.
+- Ikony przez Lucide React Native: spójna biblioteka ikon SVG zoptymalizowanych dla mobile.
+- Spójne zachowanie przycisku wstecz, linków i nawigacji zgodne z Expo Router conventions.
 - Minimalna dostępność: czytelność/kontrast, etykiety elementów, haptics dla start/stop nagrania.
 
   3.7 Koszty i limity
@@ -73,12 +77,14 @@ Zakres MVP obejmuje: mock‑logowanie z utrwaleniem przez SecureStore, ekran cza
 
   3.8 Bezpieczeństwo i klucze
 
-- Brak serwerowego proxy w MVP; klucze tylko lokalnie w .env po stronie dewelopera/testera; dostarczone .env.example.
+- Brak serwerowego proxy w MVP; klucze OpenAI przechowywane lokalnie w .env (dostęp przez Expo Constants); dostarczone .env.example.
+- SecureStore dla mock logowania (test@example.com/password123) i stanu zalogowania.
 - Zakaz commitowania kluczy do repo; repo publiczne.
 
   3.9 Wydajność i stabilność
 
-- TTFB zgodny z możliwościami SDK i platform: płynne przewijanie listy wiadomości; przetwarzanie załączników nie blokuje głównego wątku.
+- TTFB zgodny z możliwościami Vercel AI SDK i platform: płynne przewijanie listy wiadomości; przetwarzanie załączników nie blokuje głównego wątku.
+- Detekcja połączenia internetowego przez Expo Network dla offline states handling.
 - Crash‑free rate docelowo ≥ 99.5% w MVP.
 
 ## 4. Granice produktu
@@ -88,8 +94,8 @@ Poza zakresem MVP:
 - Prawdziwe backendowe uwierzytelnianie, rejestracja, odzyskiwanie hasła i zarządzanie tokenami poza lokalnym mock‑logowaniem.
 - Trwała (chmurowa) historia rozmów, synchronizacja między urządzeniami, role/organizacje i uprawnienia wieloużytkownikowe.
 - Zaawansowana moderacja treści, RAG z wektorami, routing wielu dostawców, skomplikowane polityki kosztów/limitów.
-- Twardy token‑by‑token streaming na RN bez obejść (poza quasi‑streamingiem/aktualizacją blokową).
 - Tryb offline i telemetria.
+- Lokalne narzędzia natywne (Xcode/Android Studio) - używamy EAS Build/Submit dla cloud-based builds.
 
 ## 5. Historyjki użytkowników
 
@@ -126,7 +132,7 @@ Kryteria akceptacji:
 
 - Pole wejścia akceptuje do 5000 znaków i blokuje wysyłkę po przekroczeniu.
 - Po wysyłce pojawia się natychmiastowy stan „model pisze…”.
-- Odpowiedź renderuje się quasi‑streamingowo lub w płynnych porcjach.
+- Odpowiedź renderuje się przez natywny streaming Vercel AI SDK (token-by-token).
 
 US‑011
 Tytuł: Przerwanie generowania
@@ -202,20 +208,20 @@ Kryteria akceptacji:
 - Zapisany fragment jest przekazany do STT lub do kolejki fallback.
 
 US‑022
-Tytuł: Streaming partials STT
-Opis: Jako użytkownik chcę widzieć częściowe wyniki transkrypcji podczas nagrywania.
+Tytuł: Lokalna transkrypcja STT
+Opis: Jako użytkownik chcę otrzymać transkrypcję nagrania przez Expo Speech.
 Kryteria akceptacji:
 
-- Pierwsze partials pojawiają się w 800–1000 ms od startu.
-- Tekst partials jest aktualizowany w polu wejścia.
+- Transkrypcja odbywa się lokalnie bez kosztów external API.
+- Tekst transkrypcji pojawia się w polu wejścia po zakończeniu nagrywania.
 
 US‑023
-Tytuł: Fallback transkrypcji asynchronicznej
-Opis: Jako użytkownik chcę otrzymać transkrypcję po zakończeniu nagrania, jeśli streaming nie działa.
+Tytuł: Fallback do text input
+Opis: Jako użytkownik chcę mieć automatyczny fallback do text input, gdy STT nie jest dostępny.
 Kryteria akceptacji:
 
-- Dla 10 s audio transkrypcja pojawia się w 5–7 s.
-- Użytkownik może edytować tekst przed wysyłką do modelu.
+- W przypadku braku uprawnień do mikrofonu widoczna jest opcja text input.
+- Użytkownik może edytować transkrybowany lub wpisany tekst przed wysyłką do modelu.
 
 US‑024
 Tytuł: Przerwanie nagrywania przez system
@@ -286,20 +292,20 @@ Kryteria akceptacji:
 - Powyżej limitu pojawia się komunikat i propozycja skrócenia.
 
 US‑037
-Tytuł: OCR dla skanów PDF
-Opis: Jako użytkownik chcę mieć wynik OCR, gdy PDF jest skanem.
+Tytuł: Obsługa PDF bez tekstu
+Opis: Jako użytkownik chcę otrzymać jasny komunikat, gdy PDF nie zawiera tekstu.
 Kryteria akceptacji:
 
-- Jeśli brak tekstu, uruchamia się OCR.
-- W razie niepowodzenia pojawia się komunikat i sugestia ponowienia.
+- Jeśli PDF nie zawiera tekstu (skan), wyświetla się komunikat o ograniczeniu.
+- Sugestia użycia obrazu zamiast PDF dla skanowanych dokumentów.
 
 US‑038
 Tytuł: Kompresja i skalowanie obrazów
-Opis: Jako użytkownik chcę, aby obrazy były optymalizowane i bez EXIF.
+Opis: Jako użytkownik chcę, aby obrazy były optymalizowane przez Expo Image Manipulator.
 Kryteria akceptacji:
 
-- Dłuższy bok do ~1600 px; jakość ~0.8.
-- Dane EXIF nie są zachowywane.
+- Dłuższy bok skalowany do ~1600 px; kompresja ~0.8 przez Expo Image Manipulator.
+- Dane EXIF usuwane bez dependencies natywnych.
 
 US‑039
 Tytuł: Vision dla obrazów
@@ -354,19 +360,19 @@ Kryteria akceptacji:
 - Ostrzeżenie pojawia się przy zbliżaniu się do 15 USD.
 
 US‑070
-Tytuł: Quasi‑streaming na RN
-Opis: Jako użytkownik chcę płynnego odczucia strumieniowania nawet bez token‑by‑token.
+Tytuł: Natywny streaming na RN
+Opis: Jako użytkownik chcę płynnego token-by-token strumieniowania przez Vercel AI SDK.
 Kryteria akceptacji:
 
-- Odpowiedź renderuje się porcjami co 50–100 ms lub blokowo z płynną aktualizacją.
-- Wskaźnik „model pisze…” widoczny do zakończenia generowania.
+- Odpowiedź renderuje się płynnie token-by-token przez natywny streaming.
+- Wskaźnik „model pisze…" widoczny do zakończenia generowania z wbudowaną obsługą błędów.
 
 US‑071
 Tytuł: Brak połączenia sieciowego
-Opis: Jako użytkownik chcę jasnego komunikatu, gdy nie ma internetu.
+Opis: Jako użytkownik chcę jasnego komunikatu, gdy nie ma internetu (detekcja przez Expo Network).
 Kryteria akceptacji:
 
-- Przy braku sieci pojawia się komunikat i brak prób wysyłki.
+- Przy braku sieci (Expo Network) pojawia się komunikat i brak prób wysyłki.
 - Po odzyskaniu sieci można ponowić wysyłkę.
 
 US‑072
@@ -395,9 +401,9 @@ Kryteria akceptacji:
 
 ## 6. Metryki sukcesu
 
-- Czas do pierwszej porcji odpowiedzi (TTFB): mediana ≤ 2.0–2.5 s, p95 ≤ 5 s.
-- STT: pierwsze partials ≤ ~800–1000 ms; transkrypcja 10 s audio ≤ 5–7 s (fallback async).
-- Załączniki: co najmniej 95% plików do 10 MB przetwarzanych bez błędów; PDF ≤ 50 stron przechodzi ekstrakcję lub informuje o ograniczeniach.
-- Stabilność/UX: crash‑free ≥ 99.5%; toasty dla 4xx/5xx/timeout; „Ponów” działa dla 429/5xx/timeout.
-- Koszty: licznik w UI sygnalizuje zbliżanie się do 15 USD/miesiąc; brak przekroczeń w typowych scenariuszach testowych.
-- Nawigacja i stan: szybkie przełączanie zakładek bez utraty stanu; spójność zachowania wstecz zgodna z Expo Router.
+- Czas do pierwszego tokenu odpowiedzi (TTFB): mediana ≤ 2.0–2.5 s, p95 ≤ 5 s (Vercel AI SDK natywny streaming).
+- STT: Expo Speech lokalna transkrypcja z automatycznym fallback do text input w przypadku braku uprawnień.
+- Załączniki: co najmniej 95% plików do 10 MB przetwarzanych bez błędów przez Expo Image Manipulator/Document Picker; PDF ≤ 50 stron przechodzi ekstrakcję lub informuje o ograniczeniach.
+- Stabilność/UX: crash‑free ≥ 99.5%; wbudowana obsługa błędów w useChat hook; „Ponów" działa dla 429/5xx/timeout; Expo Network dla offline detection.
+- Koszty: licznik w UI sygnalizuje zbliżanie się do 15 USD/miesiąc; lokalne klucze OpenAI przez Expo Constants.
+- Nawigacja i stan: szybkie przełączanie zakładek bez utraty stanu; file-based routing przez Expo Router; NativeWind + Tailwind styling.

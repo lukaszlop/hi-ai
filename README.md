@@ -1,50 +1,227 @@
-# Welcome to your Expo app 👋
+# Hi AI - Chat AI Mobile App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native mobile application for conversational AI interactions with GPT-4o-mini, featuring text chat, file attachments, voice input, and local data persistence.
 
-## Get started
+## Table of Contents
 
-1. Install dependencies
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
+
+## Project Description
+
+Hi AI is a mobile chat application built with Expo and React Native that enables users to interact with OpenAI's GPT-4o-mini model. The app supports:
+
+- **Text Chat**: Conversational interface with native streaming responses (token-by-token)
+- **File Attachments**: Support for images (JPEG, PNG), documents (PDF, Markdown, TXT) up to 10MB per file
+- **Voice Input**: Local speech-to-text using Expo Speech with automatic fallback to text input
+- **Vision Capabilities**: Image analysis through GPT-4o-mini's vision features
+- **Local Storage**: User profile and session data stored locally without server backend
+- **Polish Interface**: Application interface in Polish language
+
+**Target Platforms**: iOS 16+ and Android 10+ using Expo managed workflow
+
+**MVP Features**:
+
+- Mock authentication (test@example.com/password123)
+- Session-based chat history (cleared on app restart or logout)
+- File attachment processing with compression and optimization
+- Cost tracking with $15/month operational budget limit
+
+## Tech Stack
+
+### Core Framework
+
+- **Expo SDK 52+** - Cross-platform mobile development
+- **React Native 0.76** - Native mobile performance
+- **TypeScript 5** - Static typing and enhanced development experience
+- **Expo Router** - File-based routing system
+
+### UI & Styling
+
+- **NativeWind 4** - Tailwind CSS for React Native
+- **Tailwind CSS 3.4** - Utility-first CSS framework
+- **Lucide React Native** - Consistent SVG icon library
+- **Expo Image** - Optimized image loading and caching
+
+### AI & Chat
+
+- **Vercel AI SDK 4** - Chat streaming and error handling with `useChat` hook
+- **@ai-sdk/openai** - OpenAI GPT-4o-mini integration
+- **GPT-4o-mini** - Chat and vision AI model
+
+### State Management
+
+- **Zustand 5** - Lightweight state management
+- **Zustand persist middleware** - Automatic AsyncStorage synchronization
+
+### File Handling
+
+- **Expo Document Picker** - PDF, MD, TXT file selection
+- **Expo Image Picker** - Photo selection from gallery/camera
+- **Expo Image Manipulator** - Image scaling, compression, EXIF removal
+
+### Voice Input
+
+- **Expo Speech** - Local speech-to-text (no external API costs)
+
+### Data Persistence
+
+- **@react-native-async-storage/async-storage** - User profile storage
+- **Expo SecureStore** - Secure authentication state storage
+
+### Utilities
+
+- **Expo Network** - Internet connection detection
+- **Expo Constants** - Environment variables access
+- **React Native URL Polyfill** - Web API compatibility
+
+### Build & Distribution
+
+- **EAS CLI** - Cloud-based build service
+- **EAS Build** - iOS and Android builds
+- **EAS Submit** - App store distribution
+
+## Getting Started Locally
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+- Expo CLI (`npm install -g @expo/cli`)
+- iOS Simulator (for iOS development) or Android Studio (for Android development)
+
+### Installation
+
+1. **Clone the repository**
+
+   ```bash
+   git clone <repository-url>
+   cd hi-ai
+   ```
+
+2. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-2. Start the app
+3. **Configure environment variables**
 
    ```bash
-   npx expo start
+   cp .env.example .env
    ```
 
-In the output, you'll find options to open the app in a
+   Edit `.env` file and add your OpenAI API key:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   ```env
+   EXPO_PUBLIC_OPENAI_API_KEY=your_openai_api_key_here
+   ```
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+4. **Start the development server**
 
-## Get a fresh project
+   ```bash
+   npm start
+   ```
 
-When you're ready, run:
+5. **Run on device/simulator**
+   - For iOS: Press `i` in the terminal or run `npm run ios`
+   - For Android: Press `a` in the terminal or run `npm run android`
+   - For web: Press `w` in the terminal or run `npm run web`
 
-```bash
-npm run reset-project
-```
+### Mock Authentication
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+The app uses mock authentication for MVP:
 
-## Learn more
+- **Email**: `test@example.com`
+- **Password**: `password123`
 
-To learn more about developing your project with Expo, look at the following resources:
+## Available Scripts
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- `npm start` - Start the Expo development server
+- `npm run android` - Start the app on Android device/emulator
+- `npm run ios` - Start the app on iOS device/simulator
+- `npm run web` - Start the app in web browser
+- `npm run lint` - Run ESLint code analysis
+- `npm run reset-project` - Reset the project to initial state
 
-## Join the community
+## Project Scope
 
-Join our community of developers creating universal apps.
+### MVP Scope (Current)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+✅ **Included:**
+
+- Mock authentication with local session persistence
+- Text chat with native streaming responses
+- File attachment support (images, PDF, markdown, text files)
+- Voice input with local speech-to-text
+- Image processing and vision analysis
+- Local user profile management
+- Tab-based navigation (Chat, Profile)
+- Cost tracking and usage monitoring
+- Offline state detection
+
+❌ **Not Included (Out of MVP Scope):**
+
+- Real backend authentication and user management
+- Persistent cloud chat history and cross-device sync
+- Multi-user/organization features
+- Advanced content moderation
+- RAG (Retrieval Augmented Generation) with vector databases
+- Multiple AI provider routing
+- Advanced cost/limit policies
+- Offline mode functionality
+
+### Technical Constraints
+
+- **File Limits**: 10MB per file, max 5 files per query, 30MB total
+- **PDF Processing**: Up to 50 pages or 50,000 characters
+- **Message Limit**: 5,000 characters per message
+- **Operational Budget**: $15 USD per month
+- **Platforms**: iOS 16+ and Android 10+ only
+
+## Project Status
+
+🚧 **Current Status**: MVP Development Phase
+
+### Completed Features
+
+- ✅ Project structure and dependencies setup
+- ✅ Basic Expo Router navigation
+- ✅ Zustand store configuration
+- ✅ Core component structure
+
+### In Progress
+
+- 🔄 Chat interface with streaming responses
+- 🔄 File attachment handling
+- 🔄 User authentication flow
+- 🔄 Voice input integration
+
+### Upcoming Features
+
+- 📋 Enhanced error handling and retry mechanisms
+- 📋 Cost tracking and budget monitoring
+- 📋 Accessibility improvements
+- 📋 Performance optimizations
+- 📋 EAS Build configuration for app store distribution
+
+### Future Roadmap (Post-MVP)
+
+- Server-side authentication and user management
+- Persistent cloud chat history
+- Advanced AI model routing
+- Enhanced security and data encryption
+- Real-time collaboration features
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Note**: This application requires an OpenAI API key and uses the GPT-4o-mini model. API usage costs apply according to OpenAI's pricing structure. The application includes local usage tracking to help monitor costs within the $15/month operational budget.
